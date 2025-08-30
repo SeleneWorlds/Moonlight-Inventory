@@ -20,7 +20,22 @@ function Inventory:addItem(item)
     return item
 end
 
-function Inventory:removeItemAt(slotId, amount)
+function Inventory:increaseItemAt(slotId, amount)
+    if amount < 0 then
+        return self.decreaseItemAt(slotId, math.abs(amount))
+    end
+    local slot = self.entity:GetOrCreateAttribute(slotId)
+    local item = slot.Value
+    local count = item.count or 1
+    item.count = count + amount
+    slot:Refresh()
+    return 0
+end
+
+function Inventory:decreaseItemAt(slotId, amount)
+    if amount < 0 then
+        return self.increaseItemAt(slotId, math.abs(amount))
+    end
     local slot = self.entity:GetOrCreateAttribute(slotId)
     local item = slot.Value
     local count = item.count or 1
@@ -40,6 +55,18 @@ function Inventory:getItem(slotId)
     if item then
         return InventoryItem:fromInventorySlot(self, slot)
     end
+end
+
+function Inventory:countItem(filter)
+    local count = 0
+    for _, slotId in ipairs(self.slotIds) do
+        local slot = self.entity:GetOrCreateAttribute(slotId)
+        local item = slot.Value
+        if item and filter(item) then
+            count = count + (item.count or 1)
+        end
+    end
+    return count
 end
 
 function Inventory:fromEntityAttributes(entity, slotIds)
