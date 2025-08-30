@@ -25,7 +25,7 @@ function Inventory:findItems(filter)
     for _, slotId in ipairs(self.slotIds) do
         local slot = self:getSlot(slotId)
         local item = slot.Value
-        if item and (not filter or filter(item) then
+        if item and (not filter or filter(item)) then
             table.insert(items, InventoryItem:fromInventorySlot(self, slot))
         end
     end
