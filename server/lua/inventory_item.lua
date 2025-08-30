@@ -1,7 +1,11 @@
 local InventoryItem = {}
 
+function InventoryItem:increase(amount)
+    self.inventory:increaseItemAt(self.slotId, amount)
+end
+
 function InventoryItem:decrease(amount)
-    self.inventory:removeItemAt(self.slotId, amount)
+    self.inventory:decreaseItemAt(self.slotId, amount)
 end
 
 function InventoryItem:fromInventorySlot(inventory, slot)
