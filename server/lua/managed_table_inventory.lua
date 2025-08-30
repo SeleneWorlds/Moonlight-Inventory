@@ -3,9 +3,7 @@ local Inventory = require("moonlight-inventory.server.lua.inventory")
 local ManagedTableInventory = Inventory:new()
 
 function ManagedTableInventory:addSlot(slotId)
-    local slots = self.data:RawLookup("slots")
-    table.insert(slots, slotId)
-    self.data.slots = slots
+    table.insert(self.slots, slotId)
 end
 
 function ManagedTableInventory:getItem(slotId)
@@ -18,7 +16,7 @@ function ManagedTableInventory:setItem(slotId, item)
 end
 
 function ManagedTableInventory:getSlots()
-    return self.data:RawLookup("slots")
+    return self.slots
 end
 
 function ManagedTableInventory:copyItem(item)
@@ -28,10 +26,8 @@ end
 function ManagedTableInventory:new(o)
     o = Inventory:new(o or {})
     o.data = o.data or tablex.managed()
-    if not o.data:HasKey("slots") then
-        o.data.slots = {}
-    end
     o.data.items = tablex.managed()
+    o.slots = o.slots or {}
     setmetatable(o, self)
     self.__index = self
     return o

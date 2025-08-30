@@ -7,16 +7,15 @@ function AttributeBasedInventory:addToView(view)
 end
 
 function AttributeBasedInventory:slotUpdated(slotId)
-    table.insert(self.dirtySlots, slotId)
+    self.data.dirtySlot = slotId
     self.attribute:Refresh()
-    self.dirtySlots = {}
 end
 
-function AttributeBasedInventory:new(attribute)
+function AttributeBasedInventory:new(attribute, slotIds)
     local o = ManagedTableInventory:new({
         attribute = attribute,
-        dirtySlots = {},
-        data = attribute.Value
+        data = attribute.Value,
+        slots = slotIds
     })
     setmetatable(o, self)
     self.__index = self
