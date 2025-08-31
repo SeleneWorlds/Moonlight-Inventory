@@ -5,7 +5,7 @@ local Inventory = {}
 function Inventory:findInventoryItems(filter)
     local items = {}
     for _, slotId in ipairs(self:getSlots()) do
-        local item = self:getItem(item)
+        local item = self:getItem(slotId)
         if item and (not filter or filter(item)) then
             table.insert(items, InventoryItem:fromInventorySlot(self, slotId, item))
         end
@@ -67,9 +67,32 @@ function Inventory:addItem(item)
     return rest
 end
 
+function Inventory:removeItem(filter, amount)
+    local rest = amount
+    for _, slotId in ipairs(self:getSlots()) do
+        local item = self:getItem(slotId)
+        if item and filter(item) then
+            local itemCount = self:getItemCount(item)
+            local toRemove = math.min(rest, itemCount)
+            if toRemove >= itemCount then
+                self:setItem(slotId, nil)
+                rest = rest - itemCount
+            else
+                self:setItemCount(item, itemCount - toRemove)
+                self:slotUpdated(slotId)
+                rest = rest - toRemove
+            end
+            if rest <= 0 then
+                return 0
+            end
+        end
+    end
+    return rest
+end
+
 function Inventory:increaseCountAt(slotId, amount)
     if amount < 0 then
-        return self.decreaseItemAt(slotId, math.abs(amount))
+        return self.decreaseCountAt(slotId, math.abs(amount))
     end
     local item = self:getItem(slotId)
     local count = self:getItemCount(item)
@@ -80,9 +103,9 @@ end
 
 function Inventory:decreaseCountAt(slotId, amount)
     if amount < 0 then
-        return self.increaseItemAt(slotId, math.abs(amount))
+        return self.increaseCountAt(slotId, math.abs(amount))
     end
-    local item = self:getItem(item)
+    local item = self:getItem(slotId)
     local count = self:getItemCount(item)
     if amount < count then
         self:setItemCount(item, count - amount)
