@@ -13,6 +13,24 @@ function Inventory:findInventoryItems(filter)
     return items
 end
 
+function Inventory:addItemAt(slotId, item)
+    local slotItem = self:getItem(slotId)
+    local rest = self:getItemCount(item)
+    if self:canMergeItem(slotItem, item) then
+        local maxCount = math.min(self:getItemMaxCount(slotItem), self:getSlotMaxCount(slotId))
+        local spaceLeft = maxCount - self:getItemCount(slotItem)
+        if spaceLeft > 0 then
+            local amount = math.min(spaceLeft, rest)
+            local mergedItem = self:mergeItems(slotItem, amount == self:getItemCount(item) and item or self:copyItemWithCount(item, amount))
+            if mergedItem then
+                self:setItem(slotId, mergedItem)
+                rest = rest - amount
+            end
+        end
+    end
+    return rest
+end
+
 function Inventory:addItem(item)
     local emptySlots = {}
     local rest = self:getItemCount(item)
