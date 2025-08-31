@@ -11,12 +11,12 @@ function AttributeBasedInventory:slotUpdated(slotId)
     self.attribute:Refresh()
 end
 
-function AttributeBasedInventory:new(attribute, slotIds)
-    local o = ManagedTableInventory:new({
-        attribute = attribute,
-        data = attribute.Value,
-        slots = slotIds
-    })
+function AttributeBasedInventory:new(attribute, slotIds, data)
+    data = data or {}
+    data.attribute = attribute
+    data.data = attribute.Value
+    data.slots = slotIds
+    local o = ManagedTableInventory:new(data)
     setmetatable(o, self)
     self.__index = self
     return o
