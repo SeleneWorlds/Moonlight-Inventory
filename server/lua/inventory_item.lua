@@ -1,20 +1,18 @@
 local InventoryItem = {}
 
 function InventoryItem:increase(amount)
-    self.inventory:increaseItemAt(self.slotId, amount)
+    self.inventory:increaseCountAt(self.slotId, amount)
 end
 
 function InventoryItem:decrease(amount)
-    self.inventory:decreaseItemAt(self.slotId, amount)
+    self.inventory:decreaseCountAt(self.slotId, amount)
 end
 
-function InventoryItem:fromInventorySlot(inventory, slot)
+function InventoryItem:fromInventorySlot(inventory, slotId, item)
     local o = {
         inventory = inventory,
-        slotId = slot.Name,
-        owner = slot.Owner,
-        slot = slot,
-        content = slot.Value,
+        slotId = slotId,
+        item = item
     }
     setmetatable(o, self)
     self.__index = self
