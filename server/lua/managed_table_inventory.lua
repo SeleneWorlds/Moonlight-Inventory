@@ -23,6 +23,15 @@ function ManagedTableInventory:copyItem(item)
     return item:DeepCopy()
 end
 
+function ManagedTableInventory:subscribe(observer)
+    self.data:Subscribe(observer)
+end
+
+function ManagedTableInventory:slotUpdated(slotId)
+    self.data.dirtySlot = slotId
+    self.data:NotifyObservers()
+end
+
 function ManagedTableInventory:new(o)
     o = Inventory:new(o or {})
     o.data = o.data or tablex.managed()
