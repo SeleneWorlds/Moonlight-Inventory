@@ -16,7 +16,12 @@ end
 function Inventory:addItemAt(slotId, item)
     local slotItem = self:getItem(slotId)
     local rest = self:getItemCount(item)
-    if self:canMergeItem(slotItem, item) then
+    if not slotItem then
+        local maxCount = self:getSlotMaxCount(slotId)
+        local amount = math.min(maxCount, rest)
+        self:setItem(slotId, amount == self:getItemCount(item) and item or self:copyItemWithCount(item, amount))
+        rest = rest - amount
+    elseif self:canMergeItem(slotItem, item) then
         local maxCount = math.min(self:getItemMaxCount(slotItem), self:getSlotMaxCount(slotId))
         local spaceLeft = maxCount - self:getItemCount(slotItem)
         if spaceLeft > 0 then
