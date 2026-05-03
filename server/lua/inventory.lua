@@ -97,7 +97,7 @@ end
 
 function Inventory:increaseCountAt(slotId, amount)
     if amount < 0 then
-        return self.decreaseCountAt(slotId, math.abs(amount))
+        return self:decreaseCountAt(slotId, math.abs(amount))
     end
     local item = self:getItem(slotId)
     local count = self:getItemCount(item)
@@ -108,7 +108,7 @@ end
 
 function Inventory:decreaseCountAt(slotId, amount)
     if amount < 0 then
-        return self.increaseCountAt(slotId, math.abs(amount))
+        return self:increaseCountAt(slotId, math.abs(amount))
     end
     local item = self:getItem(slotId)
     local count = self:getItemCount(item)
