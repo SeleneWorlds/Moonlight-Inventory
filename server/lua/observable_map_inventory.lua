@@ -35,7 +35,7 @@ end
 function ObservableMapInventory:new(o)
     o = Inventory:new(o or {})
     o.data = o.data or tablex.observable()
-    o.data.items = tablex.observable()
+    o.data.items = o.data.items or tablex.observable()
     o.slots = o.slots or {}
     setmetatable(o, self)
     self.__index = self
