@@ -122,6 +122,94 @@ function Inventory:decreaseCountAt(slotId, amount)
     end
 end
 
+function Inventory:moveItem(fromSlotId, toSlotId)
+    if fromSlotId == toSlotId then
+        return true
+    end
+
+    local sourceItem = self:getItem(fromSlotId)
+    if not sourceItem then
+        return false
+    end
+
+    local targetItem = self:getItem(toSlotId)
+    if not targetItem then
+        self:setItem(toSlotId, sourceItem)
+        self:setItem(fromSlotId, nil)
+        return true
+    end
+
+    if self:canMergeItem(targetItem, sourceItem) then
+        local maxCount = math.min(self:getItemMaxCount(targetItem), self:getSlotMaxCount(toSlotId))
+        local targetCount = self:getItemCount(targetItem)
+        local sourceCount = self:getItemCount(sourceItem)
+        local spaceLeft = maxCount - targetCount
+        if spaceLeft > 0 then
+            local amount = math.min(spaceLeft, sourceCount)
+            local movedItem = amount == sourceCount and sourceItem or self:copyItemWithCount(sourceItem, amount)
+            local mergedItem = self:mergeItems(targetItem, movedItem)
+            if mergedItem then
+                self:setItem(toSlotId, mergedItem)
+                if amount == sourceCount then
+                    self:setItem(fromSlotId, nil)
+                else
+                    self:setItemCount(sourceItem, sourceCount - amount)
+                    self:slotUpdated(fromSlotId)
+                end
+                return true
+            end
+        end
+    end
+
+    self:setItem(toSlotId, sourceItem)
+    self:setItem(fromSlotId, targetItem)
+    return true
+end
+
+function Inventory:moveItemTo(targetInventory, fromSlotId, toSlotId)
+    if targetInventory == self then
+        return self:moveItem(fromSlotId, toSlotId)
+    end
+
+    local sourceItem = self:getItem(fromSlotId)
+    if not sourceItem then
+        return false
+    end
+
+    local targetItem = targetInventory:getItem(toSlotId)
+    if not targetItem then
+        targetInventory:setItem(toSlotId, sourceItem)
+        self:setItem(fromSlotId, nil)
+        return true
+    end
+
+    if targetInventory:canMergeItem(targetItem, sourceItem) then
+        local maxCount = math.min(targetInventory:getItemMaxCount(targetItem), targetInventory:getSlotMaxCount(toSlotId))
+        local targetCount = targetInventory:getItemCount(targetItem)
+        local sourceCount = self:getItemCount(sourceItem)
+        local spaceLeft = maxCount - targetCount
+        if spaceLeft > 0 then
+            local amount = math.min(spaceLeft, sourceCount)
+            local movedItem = amount == sourceCount and sourceItem or self:copyItemWithCount(sourceItem, amount)
+            local mergedItem = targetInventory:mergeItems(targetItem, movedItem)
+            if mergedItem then
+                targetInventory:setItem(toSlotId, mergedItem)
+                if amount == sourceCount then
+                    self:setItem(fromSlotId, nil)
+                else
+                    self:setItemCount(sourceItem, sourceCount - amount)
+                    self:slotUpdated(fromSlotId)
+                end
+                return true
+            end
+        end
+    end
+
+    targetInventory:setItem(toSlotId, sourceItem)
+    self:setItem(fromSlotId, targetItem)
+    return true
+end
+
 function Inventory:getInventoryItem(slotId)
     local item = self:getItem(slotId)
     if item then
