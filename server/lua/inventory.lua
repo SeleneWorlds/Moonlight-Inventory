@@ -122,7 +122,7 @@ function Inventory:decreaseCountAt(slotId, amount)
     end
 end
 
-function Inventory:moveItem(fromSlotId, toSlotId)
+function Inventory:moveItem(fromSlotId, toSlotId, context)
     if fromSlotId == toSlotId then
         return true
     end
@@ -133,9 +133,16 @@ function Inventory:moveItem(fromSlotId, toSlotId)
     end
 
     local targetItem = self:getItem(toSlotId)
+    if context and context.beforeMove and not context.beforeMove(context, self, fromSlotId, sourceItem, self, toSlotId, targetItem) then
+        return false
+    end
+
     if not targetItem then
         self:setItem(toSlotId, sourceItem)
         self:setItem(fromSlotId, nil)
+        if context and context.afterMove then
+            context.afterMove(context, self, fromSlotId, sourceItem, self, toSlotId, targetItem)
+        end
         return true
     end
 
@@ -156,6 +163,9 @@ function Inventory:moveItem(fromSlotId, toSlotId)
                     self:setItemCount(sourceItem, sourceCount - amount)
                     self:slotUpdated(fromSlotId)
                 end
+                if context and context.afterMove then
+                    context.afterMove(context, self, fromSlotId, sourceItem, self, toSlotId, targetItem)
+                end
                 return true
             end
         end
@@ -163,12 +173,15 @@ function Inventory:moveItem(fromSlotId, toSlotId)
 
     self:setItem(toSlotId, sourceItem)
     self:setItem(fromSlotId, targetItem)
+    if context and context.afterMove then
+        context.afterMove(context, self, fromSlotId, sourceItem, self, toSlotId, targetItem)
+    end
     return true
 end
 
-function Inventory:moveItemTo(targetInventory, fromSlotId, toSlotId)
+function Inventory:moveItemTo(targetInventory, fromSlotId, toSlotId, context)
     if targetInventory == self then
-        return self:moveItem(fromSlotId, toSlotId)
+        return self:moveItem(fromSlotId, toSlotId, context)
     end
 
     local sourceItem = self:getItem(fromSlotId)
@@ -177,9 +190,16 @@ function Inventory:moveItemTo(targetInventory, fromSlotId, toSlotId)
     end
 
     local targetItem = targetInventory:getItem(toSlotId)
+    if context and context.beforeMove and not context.beforeMove(context, self, fromSlotId, sourceItem, targetInventory, toSlotId, targetItem) then
+        return false
+    end
+
     if not targetItem then
         targetInventory:setItem(toSlotId, sourceItem)
         self:setItem(fromSlotId, nil)
+        if context and context.afterMove then
+            context.afterMove(context, self, fromSlotId, sourceItem, targetInventory, toSlotId, targetItem)
+        end
         return true
     end
 
@@ -200,6 +220,9 @@ function Inventory:moveItemTo(targetInventory, fromSlotId, toSlotId)
                     self:setItemCount(sourceItem, sourceCount - amount)
                     self:slotUpdated(fromSlotId)
                 end
+                if context and context.afterMove then
+                    context.afterMove(context, self, fromSlotId, sourceItem, targetInventory, toSlotId, targetItem)
+                end
                 return true
             end
         end
@@ -207,6 +230,9 @@ function Inventory:moveItemTo(targetInventory, fromSlotId, toSlotId)
 
     targetInventory:setItem(toSlotId, sourceItem)
     self:setItem(fromSlotId, targetItem)
+    if context and context.afterMove then
+        context.afterMove(context, self, fromSlotId, sourceItem, targetInventory, toSlotId, targetItem)
+    end
     return true
 end
 
