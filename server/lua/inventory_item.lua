@@ -1,5 +1,17 @@
 local InventoryItem = {}
 
+function InventoryItem:getItem()
+    return self.item
+end
+
+function InventoryItem:getInventory()
+    return self.inventory
+end
+
+function InventoryItem:getSlotId()
+    return self.slotId
+end
+
 function InventoryItem:increase(amount)
     self.inventory:increaseCountAt(self.slotId, amount)
 end
