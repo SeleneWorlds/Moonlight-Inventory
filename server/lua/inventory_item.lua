@@ -9,6 +9,10 @@ function InventoryItem:decrease(amount)
 end
 
 function InventoryItem:fromInventorySlot(inventory, slotId, item)
+    if item == nil then
+        return nil
+    end
+
     local o = {
         inventory = inventory,
         slotId = slotId,
