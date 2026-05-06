@@ -7,7 +7,7 @@ function ObservableMapInventory:addSlot(slotId)
 end
 
 function ObservableMapInventory:getItem(slotId)
-    return self.data:Lookup("items", slotId)
+    return self.data:lookup("items", slotId)
 end
 
 function ObservableMapInventory:setItem(slotId, item)
@@ -24,12 +24,12 @@ function ObservableMapInventory:copyItem(item)
 end
 
 function ObservableMapInventory:subscribe(observer)
-    self.data:Subscribe(observer)
+    self.data:subscribe(observer)
 end
 
 function ObservableMapInventory:slotUpdated(slotId)
     self.data.dirtySlot = slotId
-    self.data:NotifyObservers()
+    self.data:notifyObservers()
 end
 
 function ObservableMapInventory:new(o)
