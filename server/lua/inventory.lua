@@ -281,6 +281,15 @@ function Inventory:mergeItems(item, other)
     return nil
 end
 
+function Inventory:hasSlot(slotId)
+    for _, candidateSlotId in ipairs(self:getSlots()) do
+        if candidateSlotId == slotId then
+            return true
+        end
+    end
+    return false
+end
+
 function Inventory:getSlotCount()
     return #self:getSlots()
 end
